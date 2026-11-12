@@ -1,0 +1,67 @@
+$ curl http://localhost:8080/commandes/999
+HTTP 404
+Content-Type: application/problem+json
+{"detail":"Aucune commande 999.","instance":"/commandes/999","status":404,"title":"Not Found"}
+
+$ curl -X POST http://localhost:8080/commandes -H 'Content-Type: application/json' -d '{"client":"","article":"souris","quantite":0}'
+HTTP 400
+Content-Type: application/problem+json
+{"detail":"La commande est invalide.","instance":"/commandes","status":400,"title":"Bad Request","erreurs":{"client":"obligatoire","quantite":"doit etre superieure a 0"}}
+
+$ curl -X POST http://localhost:8080/commandes -H 'Content-Type: application/json' -d '{"client":"Lea","article":"souris"}'
+HTTP 400
+Content-Type: application/problem+json
+{"detail":"La commande est invalide.","instance":"/commandes","status":400,"title":"Bad Request","erreurs":{"quantite":"obligatoire"}}
+
+$ curl -X PATCH http://localhost:8080/commandes/1 -H 'Content-Type: application/json' -d '{"client":"  "}'
+HTTP 400
+Content-Type: application/problem+json
+{"detail":"La commande est invalide.","instance":"/commandes/1","status":400,"title":"Bad Request","erreurs":{"client":"ne doit pas etre vide"}}
+
+$ curl -X POST http://localhost:8080/commandes -H 'Content-Type: text/plain' -d 'une commande'
+HTTP 415
+Content-Type: application/problem+json
+{"detail":"Content-Type 'text/plain;charset=UTF-8' is not supported.","instance":"/commandes","status":415,"title":"Unsupported Media Type"}
+
+$ curl -X POST http://localhost:8080/commandes/1
+HTTP 405
+Allow: PATCH, GET, DELETE, PUT
+Content-Type: application/problem+json
+{"detail":"Method 'POST' is not supported.","instance":"/commandes/1","status":405,"title":"Method Not Allowed"}
+
+$ curl -X DELETE http://localhost:8080/commandes/1
+HTTP 401
+WWW-Authenticate: Bearer
+Content-Type: application/problem+json
+{"detail":"Jeton absent : authentifiez-vous.","instance":"/commandes/1","status":401,"title":"Unauthorized"}
+
+$ curl -X DELETE http://localhost:8080/commandes/1 -H 'Authorization: Bearer n-importe-quoi'
+HTTP 401
+WWW-Authenticate: Bearer error="invalid_token"
+Content-Type: application/problem+json
+{"detail":"Jeton inconnu : authentifiez-vous.","instance":"/commandes/1","status":401,"title":"Unauthorized"}
+
+$ curl -X DELETE http://localhost:8080/commandes/1 -H 'Authorization: Bearer lecture'
+HTTP 403
+Content-Type: application/problem+json
+{"detail":"Ce jeton ne permet pas de supprimer une commande.","instance":"/commandes/1","status":403,"title":"Forbidden"}
+
+$ curl -X DELETE http://localhost:8080/commandes/1 -H 'Authorization: Bearer admin'
+HTTP 409
+Content-Type: application/problem+json
+{"detail":"La commande 1 est deja expediee : elle ne peut plus etre supprimee.","instance":"/commandes/1","status":409,"title":"Conflict"}
+
+$ curl -X POST http://localhost:8080/commandes -H 'Content-Type: application/json' -d '{"client":"Hugo","article":"ecran","quantite":1}'
+HTTP 201
+Location: http://localhost:8080/commandes/2
+Content-Type: application/json
+{"id":2,"client":"Hugo","article":"ecran","quantite":1,"statut":"EN_PREPARATION"}
+
+$ curl -X DELETE http://localhost:8080/commandes/2 -H 'Authorization: Bearer admin'
+HTTP 204
+
+$ curl -X DELETE http://localhost:8080/commandes/2 -H 'Authorization: Bearer admin'
+HTTP 404
+Content-Type: application/problem+json
+{"detail":"Aucune commande 2.","instance":"/commandes/2","status":404,"title":"Not Found"}
+

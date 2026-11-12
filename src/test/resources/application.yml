@@ -1,0 +1,7 @@
+# Sortie des tests lisible : seuls les avertissements de Spring s'affichent.
+logging:
+  level:
+    root: warn
+spring:
+  main:
+    banner-mode: off

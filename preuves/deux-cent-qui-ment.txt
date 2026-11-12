@@ -1,0 +1,10 @@
+$ curl http://localhost:8080/ancien/commandes/999
+HTTP 200
+Content-Type: application/json
+{"erreur":"commande introuvable","succes":false}
+
+$ curl --fail -s http://localhost:8080/ancien/commandes/999 > /dev/null ; echo "code de sortie : $?"
+code de sortie : 0
+
+$ curl --fail -s http://localhost:8080/commandes/999 > /dev/null ; echo "code de sortie : $?"
+code de sortie : 22

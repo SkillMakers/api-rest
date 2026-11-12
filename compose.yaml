@@ -1,0 +1,13 @@
+# Tout lancer sans rien installer : docker compose run --rm demo
+# Le conteneur compile, lance les tests, demarre l'API et joue chaque scenario avec curl (sorties dans preuves/).
+services:
+  demo:
+    image: maven:3.9-eclipse-temurin-25
+    working_dir: /w
+    volumes:
+      - .:/w
+      - m2:/root/.m2
+    command: sh executer.sh
+
+volumes:
+  m2:

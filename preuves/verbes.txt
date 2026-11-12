@@ -1,0 +1,31 @@
+$ curl -X POST http://localhost:8080/commandes -H 'Content-Type: application/json' -d '{"client":"Lea","article":"clavier","quantite":1}'
+HTTP 201
+Location: http://localhost:8080/commandes/1
+Content-Type: application/json
+{"id":1,"client":"Lea","article":"clavier","quantite":1,"statut":"EN_PREPARATION"}
+
+$ curl http://localhost:8080/commandes/1
+HTTP 200
+Content-Type: application/json
+{"id":1,"client":"Lea","article":"clavier","quantite":1,"statut":"EN_PREPARATION"}
+
+$ curl -X PUT http://localhost:8080/commandes/1 -H 'Content-Type: application/json' -d '{"client":"Lea","article":"clavier","quantite":2}'
+HTTP 200
+Content-Type: application/json
+{"id":1,"client":"Lea","article":"clavier","quantite":2,"statut":"EN_PREPARATION"}
+
+$ curl -X PUT http://localhost:8080/commandes/1 -H 'Content-Type: application/json' -d '{"quantite":3}'
+HTTP 400
+Content-Type: application/problem+json
+{"detail":"La commande est invalide.","instance":"/commandes/1","status":400,"title":"Bad Request","erreurs":{"article":"obligatoire","client":"obligatoire"}}
+
+$ curl -X PATCH http://localhost:8080/commandes/1 -H 'Content-Type: application/json' -d '{"quantite":3}'
+HTTP 200
+Content-Type: application/json
+{"id":1,"client":"Lea","article":"clavier","quantite":3,"statut":"EN_PREPARATION"}
+
+$ curl -X POST http://localhost:8080/commandes/1/expedition
+HTTP 200
+Content-Type: application/json
+{"id":1,"client":"Lea","article":"clavier","quantite":3,"statut":"EXPEDIEE"}
+

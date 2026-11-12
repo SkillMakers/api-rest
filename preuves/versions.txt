@@ -1,0 +1,15 @@
+$ curl http://localhost:8080/commandes/3
+HTTP 200
+Content-Type: application/json
+{"id":3,"client":"Ines","article":"cable","quantite":1,"statut":"EN_PREPARATION"}
+
+$ curl http://localhost:8080/commandes/3 -H 'API-Version: 2'
+HTTP 200
+Content-Type: application/json
+{"id":3,"client":"Ines","produit":"cable","quantite":1,"statut":"EN_PREPARATION"}
+
+$ curl http://localhost:8080/commandes/3 -H 'API-Version: 3'
+HTTP 400
+Content-Type: application/problem+json
+{"detail":"Invalid API version: '3.0.0'.","instance":"/commandes/3","status":400,"title":"Bad Request"}
+

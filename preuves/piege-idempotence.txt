@@ -1,0 +1,29 @@
+$ POST /commandes, timeout client 1 s, serveur lent (1,5 s), 2 tentatives, SANS cle d'idempotence
+tentative 1 : 000 (timeout, le client abandonne)
+tentative 2 : 000 (timeout, le client abandonne)
+$ curl 'http://localhost:8081/commandes?taille=10'
+HTTP 200
+Content-Type: application/json
+{"contenu":[{"id":1,"client":"Lea","article":"clavier","quantite":1,"statut":"EN_PREPARATION"},{"id":2,"client":"Lea","article":"clavier","quantite":1,"statut":"EN_PREPARATION"}],"page":0,"taille":10,"total":2}
+
+$ la meme chose pour Hugo, AVEC Idempotency-Key: 5f1c-commande-hugo (la meme cle aux deux tentatives)
+tentative 1 : 000 (timeout, le client abandonne)
+tentative 2 : 201
+$ curl 'http://localhost:8081/commandes?taille=10'
+HTTP 200
+Content-Type: application/json
+{"contenu":[{"id":1,"client":"Lea","article":"clavier","quantite":1,"statut":"EN_PREPARATION"},{"id":2,"client":"Lea","article":"clavier","quantite":1,"statut":"EN_PREPARATION"},{"id":3,"client":"Hugo","article":"ecran","quantite":1,"statut":"EN_PREPARATION"}],"page":0,"taille":10,"total":3}
+
+$ une 3e tentative avec la meme cle, sans timeout cette fois
+$ curl -X POST http://localhost:8081/commandes -H 'Content-Type: application/json' -H 'Idempotency-Key: 5f1c-commande-hugo' -d '{"client":"Hugo","article":"ecran","quantite":1}'
+HTTP 201
+Location: http://localhost:8081/commandes/3
+Content-Type: application/json
+{"id":3,"client":"Hugo","article":"ecran","quantite":1,"statut":"EN_PREPARATION"}
+
+$ la meme cle, mais pour une autre commande (une erreur du client)
+$ curl -X POST http://localhost:8081/commandes -H 'Content-Type: application/json' -H 'Idempotency-Key: 5f1c-commande-hugo' -d '{"client":"Hugo","article":"souris","quantite":2}'
+HTTP 422
+Content-Type: application/problem+json
+{"detail":"Cette Idempotency-Key a deja servi pour une autre commande.","instance":"/commandes","status":422,"title":"Unprocessable Content"}
+
